@@ -40,7 +40,7 @@ class ProgramEnrollment(Document):
 		from erpnext.education.api import get_fee_components
 		fee_list = []
 		for d in self.fees:
-			fee_components = get_fee_components(d.fee_structure)
+			#fee_components = get_fee_components(d.fee_structure)
 			if fee_components:
 				fees = frappe.new_doc("Fees")
 				fees.update({
@@ -113,4 +113,24 @@ def get_students(doctype, txt, searchfield, start, page_len, filters):
 			tuple(students + ["%%%s%%" % txt, start, page_len]
 		)
 	)
+
+@frappe.whitelist()
+def make_inv(customer, customer_name, due_date, courses):
+	from frappe import utils
+        import json
+        courses = json.loads(courses)
+        udoc = frappe.new_doc("Sales Invoice")
+        udoc.naming_series = "ACC-SINV-.YYYY.-"
+        udoc.customer = customer
+        udoc.customer_name = customer_name
+        for i in range(len(courses)):	
+		fdata = frappe.get_doc('Course', courses[i])		
+		udoc.append('items', {
+		'item_code': fdata.item,
+		'qty': '1',
+		})
+	udoc.posting_date = frappe.utils.nowdate()
+	udoc.due_date = due_date
+	udoc.save()
+	return frappe.get_last_doc("Sales Invoice");
 
