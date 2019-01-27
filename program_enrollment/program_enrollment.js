@@ -128,9 +128,5 @@ frappe.ui.form.on("Program Enrollment", {
             	cur_frm.set_df_property("generate", "hidden", 1); 
             }
         });
-
-		if(cur_frm.doc.student_name == undefined) cur_frm.doc.student_name = "unnamed student";
-			var a = "Invoice Generated in name of " + cur_frm.doc.student_name + '!';
-	 		frappe.msgprint(a);
 	}
 });
