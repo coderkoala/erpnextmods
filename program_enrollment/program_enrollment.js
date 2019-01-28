@@ -84,32 +84,60 @@ frappe.ui.form.on("Program Enrollment", {
 });
 
 
+
 frappe.ui.form.on("Program Enrollment", {
-  	_party: function(frm, cdt, cdn) {	
-	if(cur_frm.doc._party == undefined){
-
-		cur_frm.set_df_property("generate", "hidden", true);
-		cur_frm.set_df_property("invoice", "hidden", true);
-		cur_frm.set_df_property("invoice", "reqd", false);
+	sinvoice: function(frm)
+	{
+		if( cur_frm.doc.sinvoice == 0)
+		{
 		cur_frm.set_value("invoice" , undefined);
+		cur_frm.set_value("_party" , undefined);
+		cur_frm.set_df_property("invoice", "hidden", 1);
+		cur_frm.set_df_property("invoice", "reqd", 0);
+		cur_frm.set_df_property("_party", "hidden", 1);
+		cur_frm.set_df_property("_party", "reqd", 0);
+		cur_frm.set_df_property("generate", "hidden", 1);
+		}
 
+		else{
+		cur_frm.set_df_property("invoice", "hidden", 0);
+		cur_frm.set_df_property("invoice", "reqd", 1);
+		cur_frm.set_df_property("_party", "hidden", 0);
+		cur_frm.set_df_property("_party", "reqd", 1);
+		}
 	}
 
-	else
-	  { 
-		cur_frm.set_df_property("invoice", "reqd", true); 
-		cur_frm.set_df_property("invoice", "hidden", false);
-		cur_frm.set_df_property("generate", "hidden", 0); 
-	  } 
+});
 
+
+frappe.ui.form.on("Program Enrollment", {
+  	invoice: function(frm) {	
+	if(cur_frm.doc.invoice != undefined){	
+		cur_frm.set_df_property("generate", "hidden", 1);
+		}
+
+	else cur_frm.set_df_property("generate", "hidden", 0);
 	}
 });
+
+
+frappe.ui.form.on("Program Enrollment", {
+  	_party: function(frm) {	
+		cur_frm.set_value("invoice" , undefined);
+		cur_frm.set_df_property("generate", "hidden", 0);
+		}
+});
+
 
 frappe.ui.form.on("Program Enrollment", {
   	
   	generate: function(frm, cdt, cdn) {
 
-  		if(cur_frm.doc.courses == undefined || cur_frm.doc.student == undefined){frappe.msgprint("Form incomplete. Kindly fill the mandatory fields and try again."); return;}
+  		if(cur_frm.doc.sinvoice == 0) return;
+  		if(cur_frm.doc.courses == undefined || cur_frm.doc.student == undefined || cur_frm.doc._party == undefined)
+  			{
+  				frappe.msgprint("Form incomplete. Kindly fill the mandatory fields and try again."); return;
+  			}
   		var crs = [], i = 0;
 		cur_frm.doc.courses.forEach(function(rows){ crs[i] = rows.course; i++; });
 
