@@ -1,7 +1,7 @@
 # erpnextmods
 Modification/feature requests repo for erpnext
 
-===
+---
 
 ### Affected : Program Enrollment
 
