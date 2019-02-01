@@ -19,7 +19,10 @@ class ProgramEnrollment(Document):
 	
 	def on_submit(self):
 		self.update_student_joining_date()
-		self.make_fee_records()
+		if(self.sinvoice == 0):					
+			self.make_fee_records()
+		else:
+			msgprint(_("Fees record not made!"))
 	
 	def validate_duplication(self):
 		enrollment = frappe.get_all("Program Enrollment", filters={
@@ -115,16 +118,17 @@ def get_students(doctype, txt, searchfield, start, page_len, filters):
 	)
 
 @frappe.whitelist()
-def make_inv(customer, customer_name, due_date, courses):
+def make_inv(customer, customer_name, due_date, courses , fees):
 	from frappe import utils
-        import json
+	import json
 	count = 0        
 	courses = json.loads(courses)
-        udoc = frappe.new_doc("Sales Invoice")
-        udoc.naming_series = "ACC-SINV-.YYYY.-"
-        udoc.customer = customer
-        udoc.customer_name = customer_name
-        for i in range(len(courses)):	
+	fees = json.loads(fees)
+	udoc = frappe.new_doc("Sales Invoice")
+	udoc.naming_series = "ACC-SINV-.YYYY.-"
+	udoc.customer = customer
+	udoc.customer_name = customer_name
+	for i in range(len(courses)):	
 		fdata = frappe.get_doc('Course', courses[i])		
 		if(fdata.item):
 			count= count + 1			
@@ -132,9 +136,19 @@ def make_inv(customer, customer_name, due_date, courses):
 			'item_code': fdata.item,
 			'qty': '1',
 			})
+	i = 0
+	if(fees):
+		for i in range(len(fees)):
+			fdata = frappe.get_doc('Fee Structure', fees[i])
+			if(fdata.item):
+				count = count + 1
+				udoc.append('items',{
+				'item_code':fdata.item,
+				'qty':'1',
+				})
 	udoc.posting_date = frappe.utils.nowdate()
 	udoc.due_date = due_date
-	if( count!=0 ):	
+	if( count>0 ):	
 		udoc.save()
 		return frappe.get_last_doc("Sales Invoice");	
 	else:
